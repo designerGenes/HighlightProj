@@ -4,6 +4,24 @@ const app = require('express')();
 const fs = require('fs');
 const path = require('path');
 
+const ALLOWED_THEMES = ['vs', 'atelier-seaside-dark', 
+    'isbl-editor-dark', 'xcode-dark', 'brown-paper', 
+    'atelier-plateau-light', 'school-book', 'xcode', 
+    'atelier-sulphurpool-dark', 'tomorrow-night-blue', 
+    'vs2015', 'atelier-heath-dark', 'paraiso-light', 'rainbow', 
+    'qtcreator_light', 'a11y-light', 'kimbie.dark', 'atelier-heath-light', 
+    'far', 'atelier-dune-dark', 'shades-of-purple', 'kimbie.light', 'railscasts', 
+    'solarized-dark', 'atelier-estuary-light', 'xt256', 'mono-blue', 'ocean', 
+    'github-gist', 'atelier-seaside-light', 'tomorrow-night-eighties', 
+    'atom-one-dark', 'qtcreator_dark', 'atelier-savanna-dark', 'color-brewer', 'pojoaque', 
+    'routeros', 'atelier-forest-dark', 'gml', 'tomorrow-night', 'obsidian', 'lightfair', 
+    'atelier-lakeside-dark', 'gruvbox-light', 'idea', 'tomorrow', 'atelier-forest-light', 'arduino-light', 'gruvbox-dark', 'dracula', 'magula', 
+    'arta', 'purebasic', 'hopscotch', 'github', 'nord', 'dark', 'atom-one-light', 'monokai', 'docco', 'default', 'ascetic', 'isbl-editor-light', 
+    'atelier-cave-light', 'a11y-dark', 'atelier-sulphurpool-light', 'atelier-plateau-dark', 'darkula', 'atelier-cave-dark', 'ir-black', 'solarized-light', 
+    'tomorrow-night-bright', 'atelier-savanna-light', 'foundation', 'codepen-embed', 'atelier-estuary-dark', 'googlecode', 'atom-one-dark-reasonable', 
+    'atelier-dune-light', 'paraiso-dark', 'zenburn', 'androidstudio', 'grayscale', 'sunburst', 'agate', 'hybrid', 'darcula', 'atelier-lakeside-light', 
+    'monokai-sublime', 'an-old-hope'];
+
 const codeExample = `class DataProcessor {
     constructor(data) {
         this.data = data;
@@ -46,9 +64,11 @@ app.get('/', (req, res) => {
     const themes = fs.readdirSync(path.join(__dirname, 'node_modules', 'highlight.js', 'styles'))
         .filter(file => file.endsWith('.css'))
         .map(file => file.replace(/\.min\.css$|\.css$/, ''))
-        .filter((theme, index, self) => self.indexOf(theme) === index);
+        .filter((theme, index, self) => self.indexOf(theme) === index)
+        // Add this filter to only include allowed themes
+        .filter(theme => ALLOWED_THEMES.includes(theme));
 
-    // Categorize themes
+    // Categorize themes using filtered list
     const lightThemes = themes.filter(theme => 
         /light|lite|bright|white/i.test(theme));
     const darkThemes = themes.filter(theme => 
@@ -58,7 +78,7 @@ app.get('/', (req, res) => {
 
     let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Highlight.js Themes</title>';
     
-    // Add theme styles
+    // Only add styles for allowed themes
     themes.forEach(theme => {
         let cssFile = `${theme}.min.css`;
         if (!fs.existsSync(path.join(__dirname, 'node_modules', 'highlight.js', 'styles', cssFile))) {
